@@ -80,7 +80,7 @@ mkdir -p $baseout/STAR
 echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'\n'
 
 ##create index if missing
-if [[ !-f "$index" ]]; then
+if [[ ! -f "$index" ]]; then
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_index-$(date +%s).pidstat & wid=$!
 
 	salmonindex -t $cdna -i $index
