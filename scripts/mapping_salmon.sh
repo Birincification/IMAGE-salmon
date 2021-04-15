@@ -98,11 +98,11 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 	watch pidstat -dru -hl '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
 
 	[ -f "${samplein}_1.fastq.gz" ] &&\
-		salmon quant -i $index -l A -1 ${samplein}_1.fastq.gz -2 ${samplein}_2.fastq.gz -p $nthread -o $baseout --dumpEq
+		salmon quant -i $index -l A -1 ${samplein}_1.fastq.gz -2 ${samplein}_2.fastq.gz -p $nthread -o $sampleout --dumpEq
 
 	##unpaired
 	[ -f "$samplein.fastq.gz" ] &&\
-		salmon quant -i $index -l A -r ${samplein}.fastq.gz -p $nthread -o $baseout --dumpEq
+		salmon quant -i $index -l A -r ${samplein}.fastq.gz -p $nthread -o $sampleout --dumpEq
 
 	kill -15 $wid
 done
