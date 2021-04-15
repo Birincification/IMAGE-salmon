@@ -101,7 +101,7 @@ done
 for sample in `sed '1d' $pdata | cut -f1`; do
 	samplein=$out/STAR/quant/${sample}Aligned.toTranscriptome.out.bam
 	sampleout=$baseout/STAR/$sample
-	[ -f "$sampleout" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
+	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
 	##paired
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
 
