@@ -79,21 +79,11 @@ mkdir -p $baseout/STAR
 
 echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'\n'
 
-##create index if missing
-if [[ ! -f "$index" ]]; then
-	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_index-$(date +%s).pidstat & wid=$!
-
-	salmon index -t $cdna -i $index
-
-	kill -15 $wid
-fi
-
-
 ##fastq input
 for sample in `sed '1d' $pdata | cut -f1`; do
 	samplein=$samples/$sample
 	sampleout=$baseout/READS/$sample
-	[ -f "$sampleout" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
+	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
 	##paired
 	watch pidstat -dru -hl '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
 
