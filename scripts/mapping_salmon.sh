@@ -115,7 +115,7 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 	##paired
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
 
-	salmon quant -t $cdna -l A -a $sample -o $sampleout -p $nthread --dumpEq
+	salmon quant -t $cdna -l A -a $samplein -o $sampleout -p $nthread --dumpEq
 
 	kill -15 $wid
 done
