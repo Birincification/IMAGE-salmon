@@ -83,7 +83,7 @@ echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'
 if [[ ! -f "$index" ]]; then
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_index-$(date +%s).pidstat & wid=$!
 
-	salmonindex -t $cdna -i $index
+	salmon index -t $cdna -i $index
 
 	kill -15 $wid
 fi
