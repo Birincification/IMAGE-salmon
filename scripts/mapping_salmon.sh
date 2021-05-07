@@ -85,7 +85,7 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 	sampleout=$baseout/READS/$sample
 	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
 	##paired
-	watch pidstat -dru -hl '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
+	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
 
 	[ -f "${samplein}_1.fastq.gz" ] &&\
 		salmon quant -i $index -l A -1 ${samplein}_1.fastq.gz -2 ${samplein}_2.fastq.gz -p $nthread -o $sampleout --dumpEq

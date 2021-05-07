@@ -63,7 +63,7 @@ index="$index/salmon/index"
 mkdir -p $index/salmon/
 
 ##create index if missing
-[ "$(ls -A $index)" ] && echo "[INFO] [SALMON] $index not empty; skipping.."$'\n' && exit
+[ "$(ls -A $index/salmon)" ] && echo "[INFO] [SALMON] $index not empty; skipping.."$'\n' && exit
 
 watch pidstat -dru -hlH '>>' $log/salmon_index-$(date +%s).pidstat & wid=$!
 
