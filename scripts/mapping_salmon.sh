@@ -74,8 +74,7 @@ index="$index/salmon/index"
 dir=$(basename $out)
 
 mkdir -p $baseout
-mkdir -p $baseout/READS
-mkdir -p $baseout/STAR
+
 
 echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'\n'
 
@@ -83,7 +82,11 @@ echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'
 for sample in `sed '1d' $pdata | cut -f1`; do
 	samplein=$samples/$sample
 	sampleout=$baseout/READS/$sample
+	! [ -f "${samplein}.fastq.gz" ] && ! [ -f "${samplein}_1.fastq.gz" ] && ! [ -f "${samplein}_2.fastq.gz" ] && \
+		echo "[INFO] [Salmon] No $samplein.fastq.gz or ${samplein}_(1|2).fastq.gz exists; skipping.."$'\n' && continue
 	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
+	mkdir -p $baseout/READS
+
 	##paired
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
 
@@ -101,8 +104,10 @@ done
 for sample in `sed '1d' $pdata | cut -f1`; do
 	samplein=$out/STAR/quant/${sample}Aligned.toTranscriptome.out.bam
 	sampleout=$baseout/STAR/$sample
+	[ -f "$samplein" ] && echo "[INFO] [Salmon] $samplein does not exists; skipping.."$'\n' && continue
 	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
-	##paired
+	mkdir -p $baseout/STAR
+
 	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
 
 	salmon quant -t $cdna -l A -a $samplein -o $sampleout -p $nthread --dumpEq
