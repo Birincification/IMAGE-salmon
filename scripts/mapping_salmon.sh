@@ -15,7 +15,7 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
 fi
 
 OPTIONS=
-LONGOPTS=index:,pdata:,samples:,out:,nthread:,log:
+LONGOPTS=index:,pdata:,samples:,out:,nthread:,log:,star
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -30,6 +30,7 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
+star=n
 # now enjoy the options in order and nicely split until we see --
 while true; do
     case "$1" in
@@ -48,6 +49,10 @@ while true; do
         --out)
             out="$2"
             shift 2
+            ;;
+        --star)
+            star=y
+            shift
             ;;
         --nthread)
             nthread="$2"
@@ -101,20 +106,21 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 done
 
 ##STAR input
-for sample in `sed '1d' $pdata | cut -f1`; do
-	samplein=$out/STAR/quant/${sample}Aligned.toTranscriptome.out.bam
-	sampleout=$baseout/STAR/$sample
-	! [ -f "$samplein" ] && echo "[INFO] [Salmon] $samplein does not exists; skipping.."$'\n' && continue
-	[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
-	mkdir -p $baseout/STAR
+if [[ "$star" = "y" ]]; then
+	for sample in `sed '1d' $pdata | cut -f1`; do
+		samplein=$out/STAR/quant/${sample}Aligned.toTranscriptome.out.bam
+		sampleout=$baseout/STAR/$sample
+		! [ -f "$samplein" ] && echo "[INFO] [Salmon] $samplein does not exists; skipping.."$'\n' && continue
+		[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
+		mkdir -p $baseout/STAR
 
-	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
+		watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
 
-	salmon quant -t $cdna -l A -a $samplein -o $sampleout -p $nthread --dumpEq
+		salmon quant -t $cdna -l A -a $samplein -o $sampleout -p $nthread --dumpEq
 
-	kill -15 $wid
-done
-
+		kill -15 $wid
+	done
+fi
 #-t [ --targets ] arg	FASTA format file containing target transcripts
 #-l [ --libType ] arg	Format string describing the library type
 #-a [ --alignments ] arg	input alignment (BAM) file(s)
