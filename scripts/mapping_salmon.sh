@@ -83,6 +83,10 @@ mkdir -p $baseout
 
 echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'\n'
 
+watch pidstat -dru -hlH '>>' $log/salmon_${dir}.$(date +%s).pidstat & wid2=$!
+
+mkdir -p $log/salmon_$dir
+
 ##fastq input
 for sample in `sed '1d' $pdata | cut -f1`; do
 	samplein=$samples/$sample
@@ -93,7 +97,7 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 	mkdir -p $baseout/READS
 
 	##paired
-	watch pidstat -dru -hlH '>>' $log/salmon_${dir}_$sample-$(date +%s).pidstat & wid=$!
+	watch pidstat -dru -hlH '>>' $log/salmon_${dir}/$sample.$(date +%s).pidstat & wid=$!
 
 	[ -f "${samplein}_1.fastq.gz" ] &&\
 		salmon quant -i $index -l A -1 ${samplein}_1.fastq.gz -2 ${samplein}_2.fastq.gz -p $nthread -o $sampleout --dumpEq
@@ -105,8 +109,15 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 	kill -15 $wid
 done
 
+kill -15 $wid2
+
 ##STAR input
 if [[ "$star" = "y" ]]; then
+
+	watch pidstat -dru -hlH '>>' $log/salmon-star_${dir}.$(date +%s).pidstat & wid2=$!
+
+	mkdir -p $log/salmon-star_$dir
+
 	for sample in `sed '1d' $pdata | cut -f1`; do
 		samplein=$out/STAR/quant/${sample}Aligned.toTranscriptome.out.bam
 		sampleout=$baseout/STAR/$sample
@@ -114,12 +125,14 @@ if [[ "$star" = "y" ]]; then
 		[ -f "$sampleout/quant.sf" ] && echo "[INFO] [Salmon] $sampleout already exists; skipping.."$'\n' && continue
 		mkdir -p $baseout/STAR
 
-		watch pidstat -dru -hlH '>>' $log/salmon_${dir}_${sample}_star-$(date +%s).pidstat & wid=$!
+		watch pidstat -dru -hlH '>>' $log/salmon-star_${dir}/${sample}.$(date +%s).pidstat & wid=$!
 
 		salmon quant -t $cdna -l A -a $samplein -o $sampleout -p $nthread --dumpEq
 
 		kill -15 $wid
 	done
+
+	kill -15 $wid2
 fi
 #-t [ --targets ] arg	FASTA format file containing target transcripts
 #-l [ --libType ] arg	Format string describing the library type
