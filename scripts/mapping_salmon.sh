@@ -84,7 +84,7 @@ mkdir -p $baseout
 echo "[INFO] [Salmon] ["`date "+%Y/%m/%d-%H:%M:%S"`"] Started processing $dir"$'\n'
 
 watch pidstat -dru -hlH '>>' $log/salmon_${dir}.$(date +%s).pidstat & wid2=$!
-
+starter="$(date +%s)"
 mkdir -p $log/salmon_$dir
 
 ##fastq input
@@ -108,13 +108,14 @@ for sample in `sed '1d' $pdata | cut -f1`; do
 
 	kill -15 $wid
 done
-
+echo "$(($(date +%s)-$starter))" >> $log/salmon_${dir}.$(date +%s).runtime
 kill -15 $wid2
 
 ##STAR input
 if [[ "$star" = "y" ]]; then
 
 	watch pidstat -dru -hlH '>>' $log/salmon-star_${dir}.$(date +%s).pidstat & wid2=$!
+	starter="$(date +%s)"
 
 	mkdir -p $log/salmon-star_$dir
 
@@ -132,6 +133,7 @@ if [[ "$star" = "y" ]]; then
 		kill -15 $wid
 	done
 
+	echo "$(($(date +%s)-$starter))" >> $log/salmon-star_${dir}.$(date +%s).runtime
 	kill -15 $wid2
 fi
 #-t [ --targets ] arg	FASTA format file containing target transcripts
